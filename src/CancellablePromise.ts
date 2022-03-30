@@ -31,16 +31,24 @@ export class CancellablePromise<TResult> {
         
         executor(async (result: TResult) => {
             if (this._isCancelled) return;
+
             this._result = result;
+            
             await this._onFullfilled?.(result);
+
             if (this._isCancelled) return;
-            this._onFinally?.();
+
+            await this._onFinally?.();
         }, async (error: any) => {
             if (this._isCancelled) return;
+
             this._error = error;
+            
             await this._onRejected?.(error);
+
             if (this._isCancelled) return;
-            this._onFinally?.();
+            
+            await this._onFinally?.();
         });
     }
 
@@ -51,7 +59,11 @@ export class CancellablePromise<TResult> {
      */
     public then(onfullfilled: (result: TResult) => any): CancellablePromise<TResult> {
         this._onFullfilled = onfullfilled;
-        if (this._result != null && !this._isCancelled) this._onFullfilled?.(this._result);
+        
+        if (this._result != null && !this._isCancelled) {
+            this._onFullfilled?.(this._result);
+        }
+
         return this;
     } 
 
@@ -62,7 +74,11 @@ export class CancellablePromise<TResult> {
      */
     public catch(onRejected: (error: any) => any): CancellablePromise<TResult> {
         this._onRejected = onRejected;
-        if (this._error != null && !this._isCancelled) this._onRejected?.(this._error);
+
+        if (this._error != null && !this._isCancelled) {
+            this._onRejected?.(this._error);
+        }
+
         return this;
     }
 
@@ -71,8 +87,10 @@ export class CancellablePromise<TResult> {
      * @param onrejected The callback to execute when the CancellablePromise is rejected.
      * @returns A CancellablePromise for the completion of the callback.
      */
-    public finally(onFinally: () => any): void {
+    public finally(onFinally: () => any): CancellablePromise<TResult> {
         this._onFinally = onFinally;
+
+        return this;
     }
 
     /**
