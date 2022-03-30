@@ -1,0 +1,27 @@
+{
+  "name": "cancellablepromise",
+  "version": "1.0.0",
+  "description": "Simple library that provides the ability to cancel a Promise",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tmarndt1/CancellablePromise.git"
+  },
+  "author": "Travis Arndt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tmarndt1/CancellablePromise/issues"
+  },
+  "homepage": "https://github.com/Tmarndt1/CancellablePromise#readme",
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "jest": "^27.5.1",
+    "typescript": "^4.6.3",
+    "ts-jest": "^27.1.3",
+    "ts-node": "^10.7.0"
+  }
+}

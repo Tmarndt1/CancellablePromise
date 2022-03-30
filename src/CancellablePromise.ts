@@ -1,11 +1,11 @@
-import CancellationTokenSource from "./CancellationTokenSource";
+import { ICancellationTokenSource } from "./CancellationTokenSource";
 
 /**
  * A Promise like implementation that provides the ability to cancel the Promise in addition to the conventional then, catch, and finally methods.
  * The CancellablePromise requires a CancellationTokenSource to cancel the execution.
  */
 export class CancellablePromise<TResult> {
-    private _cts: CancellationTokenSource;
+    private _cts: ICancellationTokenSource;
 
     private _result: TResult | null = null;
 
@@ -26,7 +26,7 @@ export class CancellablePromise<TResult> {
      * @param executor The required function to exectute
      * @param cts The CancellationTokenSource to cancel the request
      */
-    constructor(executor: (resolve: (result: TResult) => any, reject: (error?: any) => any) => void, cts: CancellationTokenSource) {
+    constructor(executor: (resolve: (result: TResult) => any, reject: (error?: any) => any) => void, cts: ICancellationTokenSource) {
         this._cts = cts;
         
         executor(async (result: TResult) => {
