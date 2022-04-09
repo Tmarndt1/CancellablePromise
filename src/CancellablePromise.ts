@@ -32,37 +32,50 @@ export class CancellablePromise<TResult> {
         executor(async (result: TResult) => {
             if (this._isCancelled) return;
 
+            await new Promise<void>((resolve) => {
+                this._onFullfilled?.(result);
+
+                resolve();
+            });
+
             this._result = result;
-            
-            await this._onFullfilled?.(result);
 
             if (this._isCancelled) return;
 
-            await this._onFinally?.();
+            this._onFinally?.();
         }, async (error: any) => {
             if (this._isCancelled) return;
+            
+            await new Promise<void>((resolve) => {
+                this._onRejected?.(error);
+                
+                resolve();
+            });
 
             this._error = error;
-            
-            await this._onRejected?.(error);
 
             if (this._isCancelled) return;
             
-            await this._onFinally?.();
+            this._onFinally?.();
         });
     }
 
     /**
      * Attaches callbacks for the resolution and/or rejection of the CancellablePromise.
      * @param onfulfilled The callback to execute when the CancellablePromise is resolved.
-\     * @returns A CancellablePromise for the completion of which ever callback is executed.
+     * @returns A CancellablePromise for the completion of which ever callback is executed.
      */
-    public then(onfullfilled: (result: TResult) => any): CancellablePromise<TResult> {
-        this._onFullfilled = onfullfilled;
-        
-        if (this._result != null && !this._isCancelled) {
-            this._onFullfilled?.(this._result);
+    public then(onFullfilled: (result: TResult) => any): CancellablePromise<TResult> {
+        if (this._result != null) {
+            new Promise<void>(resolve => {
+                onFullfilled?.(this._result as TResult);
+                
+                resolve();
+            })
+            .then(() => this._onFinally?.());
         }
+
+        this._onFullfilled = onFullfilled;
 
         return this;
     } 
@@ -73,11 +86,16 @@ export class CancellablePromise<TResult> {
      * @returns A CancellablePromise for the completion of the callback.
      */
     public catch(onRejected: (error: any) => any): CancellablePromise<TResult> {
-        this._onRejected = onRejected;
-
-        if (this._error != null && !this._isCancelled) {
-            this._onRejected?.(this._error);
+        if (this._error != null) {
+            new Promise<void>(resolve => {
+                onRejected?.(this._error);
+                
+                resolve();
+            })
+            .then(() => this._onFinally?.());
         }
+
+        this._onRejected = onRejected;
 
         return this;
     }
